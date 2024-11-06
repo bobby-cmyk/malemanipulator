@@ -14,7 +14,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;  /* Remove padding to avoid overflow on mobile */
 }
 
 /* Container for Centered Content */
@@ -24,7 +24,8 @@ body {
     text-align: center;
     border: 1px solid #000;
     padding: 20px;
-    margin: 20px;
+    margin: 0 auto; /* Center without adding extra space */
+    min-height: 100vh; /* Ensures full viewport height */
 }
 
 /* Header Styling */
