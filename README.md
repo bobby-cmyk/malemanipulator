@@ -8,7 +8,7 @@
 <h2>Features</h2>
 <ul>
   <li>Manipulator Score (out of 100%)</li>
-  <li>An advice for you to stay away for a walking redflag</li>
+  <li>An advice for you to stay away from a walking redflag</li>
 </ul>
 
 <h2>Methodology</h2>
