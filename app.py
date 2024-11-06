@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import re
 import json
 from flask import Flask, request, render_template, flash, redirect
+import random
 
 # Load Spotify API credentials from environment variables
 load_dotenv()
@@ -81,7 +82,10 @@ def calculate_male_manipulator_score(tracks):
     # Calculate manipulator score as a percentage
     manipulator_score = round((manipulator_track_count / total_tracks) * 100) if total_tracks > 0 else 0
 
-    return manipulator_score, manipulator_tracks
+     # Randomly select up to 10 manipulator tracks if there are more than 10
+    selected_manipulator_tracks = random.sample(manipulator_tracks, min(10, len(manipulator_tracks)))
+
+    return manipulator_score, selected_manipulator_tracks
 
 def get_gpt_comment(manipulator_score, manipulator_tracks):
 
