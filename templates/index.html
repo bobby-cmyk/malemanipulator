@@ -12,7 +12,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-YS58457F3V');
     </script>
 </head>
@@ -51,8 +50,6 @@
                 </div>
             {% endif %}
         {% endwith %}
-
-        
     </div>
 
     <script>
@@ -65,15 +62,22 @@
 
             // Show the loading spinner and text
             document.getElementById('loading').style.display = 'block';
+
+            // Track the form submission as an event in Google Analytics
+            gtag('event', 'pray_button_click', {
+                'event_category': 'engagement',
+                'event_label': 'Pray Button',
+                'value': 1
+            });
         }
 
-        // Auto-hide flash message after 5 seconds
+        // Auto-hide flash message after 2 seconds
         window.onload = function() {
             const flashMessage = document.getElementById('flash-message');
             if (flashMessage) {
                 setTimeout(() => {
                     flashMessage.style.display = 'none';
-                }, 2000); // Hide after 5000ms (5 seconds)
+                }, 2000); // Hide after 2000ms (2 seconds)
             }
         }
     </script>
