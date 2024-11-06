@@ -135,19 +135,5 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
-'''
-
-# Example usage with a playlist URL
-playlist_url = 'https://open.spotify.com/playlist/20JbeNbqGuttbOAaOza0x9?si=394a9875a6e8496a'
-tracks = get_playlist_tracks(playlist_url)
-manipulator_score, manipulator_tracks = calculate_male_manipulator_score(tracks)
-comment = get_gpt_comment(manipulator_score, manipulator_tracks)
-
-# Print the Male Manipulator Score
-print(f"\nManipulator Score: {manipulator_score}%")
-
-# Print the list of manipulator tracks
-print(f"\n{comment}")
-
-'''
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
