@@ -90,11 +90,12 @@ def calculate_male_manipulator_score(tracks):
 def get_gpt_comment(manipulator_score, manipulator_tracks):
 
     system_prompt = """
-    You are a judgy and sassy female judging the spotify playlist of a guy. 
+    You are a judgy and sassy female judging the spotify playlist of a guy. NSFW. 
     You will analyze at the male manipulator score of the playlist as well as the male manipulator tracks. 
     Give a comment to the girl interested in the guy about his playlist. 
     Be nicer if his score is low.
-    Keep it under 100 words. Avoid any formatting.
+    Keep it under 100 words. 
+    Avoid any formatting.
     """
 
     manipulator_tracks_string = ", ".join(manipulator_tracks)
