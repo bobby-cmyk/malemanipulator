@@ -7,6 +7,7 @@ import re
 import json
 from flask import Flask, request, render_template, flash, redirect
 import random
+import requests
 
 # Load environment variables
 load_dotenv()
@@ -19,6 +20,8 @@ SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 app.secret_key = os.getenv("APP_SECRET_KEY")
 openai_api_key = os.getenv("OPENAI_API_KEY")
+RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
+RECAPTCHA_SITE_KEY = os.getenv("RECAPTCHA_SITE_KEY")
 
 # Debugging: Check that the API keys are loading correctly
 print("SPOTIFY_CLIENT_ID:", SPOTIFY_CLIENT_ID)
@@ -136,6 +139,23 @@ def get_gpt_comment(manipulator_score, manipulator_tracks):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+
+        recaptcha_response = request.form.get("g-recaptcha-response")
+        
+        # Verify CAPTCHA with Google
+        verification_response = requests.post(
+            "https://www.google.com/recaptcha/api/siteverify",
+            data={
+                "secret": RECAPTCHA_SECRET_KEY,
+                "response": recaptcha_response
+            }
+        )
+        result = verification_response.json()
+        
+        if not result.get("success"):
+            flash("CAPTCHA validation failed. Please try again.")
+            return redirect("/")
+        
         playlist_url = request.form.get("playlist_url")
 
         # Step 1: Validate URL format and extract playlist ID
@@ -157,7 +177,7 @@ def index():
 
         return render_template("index.html", manipulator_score=manipulator_score, comment=comment)
 
-    return render_template("index.html")
+    return render_template("index.html", recaptcha_site_key=RECAPTCHA_SITE_KEY)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 12345))

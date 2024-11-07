@@ -19,11 +19,31 @@
     <div class="container">
         <h1>is he a male manipulator?</h1>
 
-        <form method="post" onsubmit="showLoader()">
+        <form method="post" onsubmit="showLoader()" id="playlistForm">
             <label for="playlist_url">his spotify playlist url:</label>
             <input type="text" id="playlist_url" name="playlist_url" required>
-            <button type="submit">pray</button>
+            <button type="submit" onclick="submitForm()">pray</button>
         </form>
+
+        <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+        <script>
+            function submitForm() {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute("{{ recaptcha_site_key }}", {action: "submit"}).then(function(token) {
+                        // Add the token to the form
+                        var form = document.getElementById("playlistForm");
+                        var input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "g-recaptcha-response";
+                        input.value = token;
+                        form.appendChild(input);
+
+                        // Submit the form
+                        form.submit();
+                    });
+                });
+            }
+        </script>
 
         <!-- Loading Animation -->
         <div id="loading" class="loading" style="display: none;">
