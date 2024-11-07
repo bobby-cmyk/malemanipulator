@@ -1,6 +1,6 @@
 <h1>is he a male manipulator?</h1>
 
-<a href="https://malemanipulator.vercel.app/">try here</a>
+<a href="https://www.malemanipulator.xyz">try here</a>
 
 <h2>Decription:</h2>
 <p>Find out if he is a male manipulator through his spotify playlist</p>
