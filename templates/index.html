@@ -14,40 +14,55 @@
         gtag('js', new Date());
         gtag('config', 'G-YS58457F3V');
     </script>
-
+    
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2758712459057467"
     crossorigin="anonymous"></script>
+
 </head>
 
 <body>
     <div class="container">
         <h1>is he a male manipulator?</h1>
 
-        <form method="post" onsubmit="showLoader()" id="playlistForm">
+        <form method="post" id="playlistForm">
             <label for="playlist_url">his spotify playlist url:</label>
             <input type="text" id="playlist_url" name="playlist_url" required>
-            <button type="submit" onclick="submitForm()">pray</button>
+            <button type="submit" onclick="submitForm(event)">pray</button>
         </form>
-
+        
         <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
         <script>
-            function submitForm() {
+            function submitForm(event) {
+                event.preventDefault();
+
                 grecaptcha.ready(function() {
                     grecaptcha.execute("{{ recaptcha_site_key }}", {action: "submit"}).then(function(token) {
-                        // Add the token to the form
                         var form = document.getElementById("playlistForm");
+
+                        // Remove existing g-recaptcha-response inputs
+                        var existingInput = document.querySelector('input[name="g-recaptcha-response"]');
+                        if (existingInput) {
+                            existingInput.remove();
+                        }
+
+                        // Add the new token to the form
                         var input = document.createElement("input");
                         input.type = "hidden";
                         input.name = "g-recaptcha-response";
                         input.value = token;
                         form.appendChild(input);
 
+                        // Show the loader
+                        showLoader();
+
                         // Submit the form
                         form.submit();
                     });
                 });
             }
+
         </script>
+        
 
         <!-- Loading Animation -->
         <div id="loading" class="loading" style="display: none;">
@@ -88,11 +103,13 @@
             document.getElementById('loading').style.display = 'block';
 
             // Track the form submission as an event in Google Analytics
-            gtag('event', 'pray_button_click', {
-                'event_category': 'engagement',
-                'event_label': 'Pray Button',
-                'value': 1
-            });
+            if (typeof gtag === 'function') {
+                gtag('event', 'pray_button_click', {
+                    'event_category': 'engagement',
+                    'event_label': 'Pray Button',
+                    'value': 1
+                });
+            }
         }
 
         // Auto-hide flash message after 2 seconds

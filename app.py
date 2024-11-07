@@ -140,9 +140,15 @@ def get_gpt_comment(manipulator_score, manipulator_tracks):
 def index():
     if request.method == "POST":
 
+        # Print the entire form data
+        print("Form data received:", request.form)
+
         recaptcha_response = request.form.get("g-recaptcha-response")
-        
-        # Verify CAPTCHA with Google
+
+        if not recaptcha_response:
+            flash("CAPTCHA token missing. Please try again.")
+            return redirect("/")
+
         verification_response = requests.post(
             "https://www.google.com/recaptcha/api/siteverify",
             data={
@@ -151,9 +157,14 @@ def index():
             }
         )
         result = verification_response.json()
-        
+        print("Verification result:", result)
+
         if not result.get("success"):
             flash("CAPTCHA validation failed. Please try again.")
+            return redirect("/")
+
+        if result.get("action") != "submit" or result.get("score", 0) < 0.5:
+            flash("CAPTCHA validation failed due to action mismatch or low score.")
             return redirect("/")
         
         playlist_url = request.form.get("playlist_url")
@@ -175,7 +186,7 @@ def index():
         manipulator_score, manipulator_tracks = calculate_male_manipulator_score(tracks)
         comment = get_gpt_comment(manipulator_score, manipulator_tracks)
 
-        return render_template("index.html", manipulator_score=manipulator_score, comment=comment)
+        return render_template("index.html", manipulator_score=manipulator_score, comment=comment, recaptcha_site_key=RECAPTCHA_SITE_KEY)
 
     return render_template("index.html", recaptcha_site_key=RECAPTCHA_SITE_KEY)
 
