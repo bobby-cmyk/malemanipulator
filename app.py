@@ -8,27 +8,48 @@ import json
 from flask import Flask, request, render_template, flash, redirect
 import random
 
-# Load Spotify API credentials from environment variables
+# Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
 
+# Get credentials and API keys from environment
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 app.secret_key = os.getenv("APP_SECRET_KEY")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Authenticate with Spotify API using Client Credentials Flow
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET, cache_path=None))
+# Debugging: Check that the API keys are loading correctly
+print("SPOTIFY_CLIENT_ID:", SPOTIFY_CLIENT_ID)
+print("SPOTIFY_CLIENT_SECRET:", "Loaded" if SPOTIFY_CLIENT_SECRET else "Missing")
+print("APP_SECRET_KEY:", "Loaded" if app.secret_key else "Missing")
+print("OPENAI_API_KEY:", "Loaded" if openai_api_key else "Missing")
 
-load_dotenv()
+# Authenticate with Spotify API
+try:
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
+    print("Successfully authenticated to spotify")
+except Exception as e:
+    print("Error initializing Spotify client:", e)
 
-client = OpenAI()
+# Authenticate with OpenAI
+try:
+    client = OpenAI(api_key=openai_api_key)
+    print("Successfully authenticated to openai")
+except Exception as e:
+    print("Error initializing OpenAI client:", e)
 
-# Load the male manipulator artists with Spotify IDs from the JSON file
-with open("male_manipulator_artists.json", "r") as f:
-    male_manipulator_artists = json.load(f)
+# Load male manipulator artists from JSON file
+try:
+    with open("male_manipulator_artists.json", "r") as f:
+        male_manipulator_artists = json.load(f)
+        print("Loaded male manipulator artists")
+except FileNotFoundError:
+    print("male_manipulator_artists.json file not found.")
+    male_manipulator_artists = {}
 
+# Define utility functions
 def get_playlist_id_from_url(url):
     """Extracts the playlist ID from a Spotify URL."""
     match = re.search(r"playlist/([a-zA-Z0-9]+)", url)
@@ -41,7 +62,9 @@ def get_playlist_tracks(playlist_id):
     """Fetches all tracks from a public Spotify playlist."""
     try:
         results = sp.playlist_tracks(playlist_id)
-    except spotipy.exceptions.SpotifyException:
+        print("Received back playlist tracks")
+    except spotipy.exceptions.SpotifyException as e:
+        print(f"Error fetching playlist: {e}")
         return None  # Return None if playlist ID is invalid
 
     tracks = results['items']
@@ -65,8 +88,8 @@ def get_playlist_tracks(playlist_id):
 
 def calculate_male_manipulator_score(tracks):
     """Calculates the male manipulator score and collects manipulator tracks based on matched artists by ID."""
-    manipulator_tracks = []  # List to store manipulator track details
-    manipulator_track_count = 0  # Counter for tracks by manipulator artists
+    manipulator_tracks = []
+    manipulator_track_count = 0
     total_tracks = len(tracks)
 
     for track in tracks:
@@ -75,20 +98,16 @@ def calculate_male_manipulator_score(tracks):
         artist_name = track['artist_name']
         
         if artist_id in male_manipulator_artists:
-            # Track is a "Male Manipulator" match
             manipulator_track_count += 1
             manipulator_tracks.append(f"{track_name} by {artist_name}")
 
-    # Calculate manipulator score as a percentage
     manipulator_score = round((manipulator_track_count / total_tracks) * 100) if total_tracks > 0 else 0
-
-     # Randomly select up to 10 manipulator tracks if there are more than 10
     selected_manipulator_tracks = random.sample(manipulator_tracks, min(10, len(manipulator_tracks)))
 
     return manipulator_score, selected_manipulator_tracks
 
 def get_gpt_comment(manipulator_score, manipulator_tracks):
-
+    """Generates a comment from OpenAI GPT based on the score and track list."""
     system_prompt = """
     You are a judgy and sassy female judging the spotify playlist of a guy. 
     You will analyze at the male manipulator score of the playlist as well as the male manipulator tracks. 
@@ -98,31 +117,32 @@ def get_gpt_comment(manipulator_score, manipulator_tracks):
     """
 
     manipulator_tracks_string = ", ".join(manipulator_tracks)
+    user_prompt = f"Manipulator Score: {manipulator_score}%, " + manipulator_tracks_string
 
-    manipulator_tracks_with_score = f"Manipulator Score: {manipulator_score}%, " + manipulator_tracks_string
-
-    user_prompt = manipulator_tracks_with_score
-
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-
-    return completion.choices[0].message.content
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4-o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+        print("Received back gpt completion")
+        return completion.choices[0].message.content
+    except Exception as e:
+        print("Error generating GPT comment:", e)
+        return "Error generating comment. Please try again."
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        playlist_url = request.form["playlist_url"]
+        playlist_url = request.form.get("playlist_url")
 
         # Step 1: Validate URL format and extract playlist ID
         try:
             playlist_id = get_playlist_id_from_url(playlist_url)
         except ValueError as e:
-            flash(str(e))  # Show error message if URL is invalid
+            flash(str(e))
             return redirect("/")
 
         # Step 2: Validate Playlist ID with Spotify API
@@ -140,5 +160,5 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 12345))
     app.run(host="0.0.0.0", port=port)
