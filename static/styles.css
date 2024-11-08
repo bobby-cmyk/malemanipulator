@@ -13,6 +13,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     min-height: 100vh;
 }
 
@@ -129,3 +130,14 @@ button:hover {
     text-align: center;
 }
 
+.footer {
+    margin-top: 15px;
+}
+
+a {
+    font-family: 'Arial', sans-serif;
+    color: #000;
+    font-size: 0.8em;
+    text-decoration: underline;
+    margin-left: 5px;
+}
