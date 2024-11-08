@@ -8,6 +8,7 @@ import json
 from flask import Flask, request, render_template, flash, redirect
 import random
 import requests
+import time
 
 # Load environment variables
 load_dotenv()
@@ -72,6 +73,7 @@ def get_playlist_tracks(playlist_id):
 
     tracks = results['items']
     while results['next']:
+        time.sleep(0.1)  # Rate limiting
         results = sp.next(results)
         tracks.extend(results['items'])
 
