@@ -14,13 +14,13 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 90vh;
 }
 
 /* Container for Centered Content */
 .container {
     max-width: 600px;
-    width: 100%;
+    width: 97%;
     text-align: center;
     border: 1px solid #000;
     padding: 20px;
