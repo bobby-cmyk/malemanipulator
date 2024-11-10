@@ -6,13 +6,11 @@
     <meta name="description" content="your male manipulator starter pack - check his spotify playlist">
     <meta name="keywords" content="male manipulator, Spotify analysis, music taste, personality insights, playlist analysis, starter pack">
     <title>male manipulator</title>
-
     
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
     <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
 
     <!-- Google tag (gtag.js) -->
@@ -25,7 +23,8 @@
     </script>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2758712459057467"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous">
+    </script>
 </head>
 
 <body>
@@ -39,6 +38,7 @@
         </form>
         
         <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+
         <script>
             function submitForm(event) {
                 event.preventDefault();
@@ -68,9 +68,7 @@
                     });
                 });
             }
-
         </script>
-        
 
         <!-- Loading Animation -->
         <div id="loading" class="loading" style="display: none;">
@@ -135,6 +133,7 @@
             }
         }
     </script>
+    
 </body>
 
 </html>
