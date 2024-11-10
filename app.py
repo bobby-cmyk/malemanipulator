@@ -9,12 +9,14 @@ from flask import Flask, request, render_template, flash, redirect
 import random
 import requests
 import time
+from flask_caching import Cache
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
+
 
 # Get credentials and API keys from environment
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
@@ -29,6 +31,12 @@ print("SPOTIFY_CLIENT_ID:", SPOTIFY_CLIENT_ID)
 print("SPOTIFY_CLIENT_SECRET:", "Loaded" if SPOTIFY_CLIENT_SECRET else "Missing")
 print("APP_SECRET_KEY:", "Loaded" if app.secret_key else "Missing")
 print("OPENAI_API_KEY:", "Loaded" if openai_api_key else "Missing")
+
+# Configure cache
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})  # You can also use 'filesystem', 'redis', etc.
+
+# Example of setting a timeout (in seconds)
+CACHE_TIMEOUT = 300  # Cache for 5 minutes
 
 # Authenticate with Spotify API
 try:
@@ -62,6 +70,7 @@ def get_playlist_id_from_url(url):
     else:
         raise ValueError("Invalid Spotify playlist URL")
 
+@cache.cached(timeout=CACHE_TIMEOUT, query_string=True)
 def get_playlist_tracks(playlist_id):
     """Fetches all tracks from a public Spotify playlist."""
     try:
@@ -90,6 +99,12 @@ def get_playlist_tracks(playlist_id):
         track_data.append(track_info)
 
     return track_data
+
+@app.route('/invalidate_cache', methods=["POST"])
+def invalidate_cache():
+    cache.clear()
+    flash("Cache has been cleared.")
+    return redirect("/")
 
 def calculate_male_manipulator_score(tracks):
     """Calculates the male manipulator score and collects manipulator tracks based on matched artists by ID."""
